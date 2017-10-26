@@ -5,7 +5,7 @@ class Exchange:
   def __init__(self):
     self.allPairs = self.getPairs
     self.availableTickers = []
-    self.pairsByTicker = {} 
+    self.pairsByTicker = {}
 
   def getJson(self,url):
     """

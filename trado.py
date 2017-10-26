@@ -4,8 +4,19 @@ import time
 import websocket
 import json
 import csv
+import ssl
+from exchanges import Kraken,Bitstamp,Bitfinex,Poloniex,Bittrex
 
-ws = websocket.WebSocket()
+
+kraken = Kraken()
+bitstamp = Bitstamp()
+bitfinex = Bitfinex()
+poloniex = Poloniex()
+bittrex = Bittrex()
+
+ssl_defaults = ssl.get_default_verify_paths()
+sslopt_ca_certs = {'ca_certs': ssl_defaults.cafile}
+ws = websocket.WebSocket(sslopt=sslopt_ca_certs)
 
 
 def begin():
@@ -17,11 +28,13 @@ def begin():
 		]
 	'''
 	file = open('key.txt','r')
-	data = file.readlines() 
+	data = file.readlines()
 	API_KEY = data[0].replace('\n','')
 	API_SECRET = data[1].replace('\n','')
 	file.close()
-	ws = websocket.create_connection("wss://api.bitfinex.com/ws/2")
+	ssl_defaults = ssl.get_default_verify_paths()
+	sslopt_ca_certs = {'ca_certs': ssl_defaults.cafile}
+	ws = websocket.create_connection("wss://api.bitfinex.com/ws/2",sslopt=sslopt_ca_certs)
 	nonce = int(time.time() * 1000000)
 	auth_payload = 'AUTH{}'.format(nonce)
 	signature = hmac.new(
@@ -29,7 +42,7 @@ def begin():
 	  msg = auth_payload.encode(),
 	  digestmod = hashlib.sha384
 	).hexdigest()
-	
+
 	print(ws.recv())
 	auth = {
 	  'apiKey': API_KEY,
@@ -45,16 +58,18 @@ def begin():
 		if str(ans[1]) == 'ws':
 			break
 	ans = ans[2]
-	wallet = [ [str(w[1]),w[2]] for w in ans]	
+	wallet = [ [str(w[1]),w[2]] for w in ans]
 	return ws,wallet
-	
+
 
 def get_price(pair):
 	'''
 		returns in the form of:
 		[BID, BID_SIZE, ASK, ASK_SIZE, DAILY_CHANGE, DAILY_CHANGE_PERC, LAST_PRICE, VOLUME, HIGH, LOW]
 	'''
-	ws = websocket.create_connection("wss://api.bitfinex.com/ws/2")
+	ssl_defaults = ssl.get_default_verify_paths()
+	sslopt_ca_certs = {'ca_certs': ssl_defaults.cafile}
+	ws = websocket.create_connection("wss://api.bitfinex.com/ws/2",sslopt=sslopt_ca_certs)
 	ws.recv()
 	request = {
 		'event' : 'subscribe',
@@ -69,7 +84,7 @@ def get_price(pair):
 			return ws,ans[1]
 		if str(ans[1]) == 'hb':
 			return ws,'no info received...'
-			
+
 def get_wallet(ws):
 	return
 
@@ -99,9 +114,9 @@ def new_order(ws,amount='None',pair='None'):
 	ws.send(json.dumps(payload))
 	print 'response:'
 	print(ws.recv())
-	
+
 #ws,wallet = begin()
-ts,price = get_price('tXRPBTC')
+ts,price = get_price(bitfinex.getTradedPair("XRP","BTC"))
 #new_order(ws,'1000','tXRPBTC')
 print ''
 print price
