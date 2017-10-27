@@ -17,6 +17,14 @@ bittrex = Bittrex()
 exchangesDict = {"Kraken":kraken,"Bitstamp":bitstamp,"Bitfinex":bitfinex,"Poloniex":poloniex,"Bittrex":bittrex}
 crossPairing = CrossPairings()
 crossPairing.addExchanges(exchangesDict)
+exchanges = crossPairing.getExchanges("BTC","USD")
+
+#while True:
+#	for exch in exchanges:
+#		a = csv.writer(fp, delimiter=',')
+#			a.writerow(exchangesDict[exch].getCurrentPrice("BTC","USD"))
+
+print(exchanges)
 
 class BitfinexWS:
 

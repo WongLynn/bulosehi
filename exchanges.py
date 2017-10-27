@@ -7,12 +7,29 @@ class CrossPairings:
     self.exchangesByTicker={}
 
   def addExchanges(self, exchangesDict):
+    """
+    Expects Dictionary of form {"Kraken":kraken,...}, where kraken is a full Exchange Object
+    Populates the exchangesByTicker dict
+    """
     for exchName in exchangesDict.keys():
       for ticker in exchangesDict[exchName].pairsByTicker:
         if not ticker in self.exchangesByTicker:
           self.exchangesByTicker[ticker] = [exchName]
         else:
           self.exchangesByTicker[ticker].append(exchName)
+
+  def getExchanges(self, primary, secondary):
+    """
+    Return exchanges that have the matching ticker
+    """
+    exchs = []
+    for tikA in self.exchangesByTicker[primary]:
+      for tikB in self.exchangesByTicker[secondary]:
+        if tikA == tikB and not tikB in exchs and not tikB in exchs:
+          exchs.append(tikA)
+    return exchs
+
+
 
 class Exchange:
   def __init__(self):
