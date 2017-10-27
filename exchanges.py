@@ -107,16 +107,22 @@ class Bitstamp(Exchange):
         pairsByTickers[asset] = holder
     return pairsByTickers
 
-  def getCurrentPrice(self,primary,secondary):
+  def getTicker(self,primary,secondary):
     """
-    Gets the current price of a traded currency pair on Kraken
+    Returns the complete Json response for calling the ticker of a specific pair
     """
     pair = self.getTradedPair(primary,secondary)
     uri = "https://www.bitstamp.net/api/v2/ticker/"
     requestUrl = uri + pair
-    jsonResponse = self.getJson(requestUrl)
-    currentPrice = jsonResponse["last"]
-    return currentPrice
+    return self.getJson(requestUrl)
+
+
+  def getCurrentPrice(self,primary,secondary):
+    """
+    Gets the current price of a traded currency pair on Kraken
+    """
+    currentPrice = self.getTicker(primary,secondary)
+    return currentPrice["last"]
 
 
 class Bitfinex(Exchange):
