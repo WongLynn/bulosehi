@@ -30,7 +30,6 @@ class CrossPairings:
     return exchs
 
 
-
 class Exchange:
   def __init__(self):
     #Holds all trading pairs in the exchange
@@ -105,7 +104,7 @@ class Kraken(Exchange):
     uri = "https://api.kraken.com/0/public/Ticker"
     requestUrl = uri + "?pair=" + pair
     jsonResponse = self.getJson(requestUrl)
-    currentPrice = jsonResponse["result"][pair]["c"]
+    currentPrice = jsonResponse["result"][pair]["c"][0]
     return currentPrice
 
 

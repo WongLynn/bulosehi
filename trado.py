@@ -19,12 +19,12 @@ crossPairing = CrossPairings()
 crossPairing.addExchanges(exchangesDict)
 exchanges = crossPairing.getExchanges("BTC","USD")
 
-#while True:
-#	for exch in exchanges:
-#		a = csv.writer(fp, delimiter=',')
-#			a.writerow(exchangesDict[exch].getCurrentPrice("BTC","USD"))
+#with open("trado2.csv", 'a') as fp:
+#	while True:
+#		for exch in exchanges:
+#			a = csv.writer(fp, delimiter=',')
+#			a.writerow([time.time(), exch, exchangesDict[exch].getCurrentPrice("BTC","USD")])
 
-print(exchanges)
 
 class BitfinexWS:
 
