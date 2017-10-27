@@ -5,7 +5,7 @@ import websocket
 import json
 import csv
 import ssl
-from exchanges import Kraken,Bitstamp,Bitfinex,Poloniex,Bittrex
+from exchanges import CrossPairings,Kraken,Bitstamp,Bitfinex,Poloniex,Bittrex
 
 
 kraken = Kraken()
@@ -13,6 +13,10 @@ bitstamp = Bitstamp()
 bitfinex = Bitfinex()
 poloniex = Poloniex()
 bittrex = Bittrex()
+
+exchangesDict = {"Kraken":kraken,"Bitstamp":bitstamp,"Bitfinex":bitfinex,"Poloniex":poloniex,"Bittrex":bittrex}
+crossPairing = CrossPairings()
+crossPairing.addExchanges(exchangesDict)
 
 class BitfinexWS:
 

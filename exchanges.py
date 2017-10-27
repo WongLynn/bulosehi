@@ -1,10 +1,26 @@
 import json as json
 import requests as req
 
+class CrossPairings:
+  def __init__(self):
+    #A dictionary of the form {'BTC':[Bitfinex,Bitstamp,Poloniex,...],...}
+    self.exchangesByTicker={}
+
+  def addExchanges(self, exchangesDict):
+    for exchName in exchangesDict.keys():
+      for ticker in exchangesDict[exchName].pairsByTicker:
+        if not ticker in self.exchangesByTicker:
+          self.exchangesByTicker[ticker] = [exchName]
+        else:
+          self.exchangesByTicker[ticker].append(exchName)
+
 class Exchange:
   def __init__(self):
+    #Holds all trading pairs in the exchange
     self.allPairs = self.getPairs
+    #Holds all available single Tickers e.g. BTC, USD etc.
     self.availableTickers = []
+    #A dictionary of the form: {'BTC':[btcusd,btceur,...],...}
     self.pairsByTicker = {}
 
   def getJson(self,url):
