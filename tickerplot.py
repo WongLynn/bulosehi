@@ -59,7 +59,7 @@ def get_local_extrema(x,data):
 			m[1].append(data[i])
 	return m
 
-area = 1000
+area = 5000 #how much recorded data we want to analyse (more than 2000 recommended)
 
 
 mbifi = get_local_extrema(x[-area:],bitfi[-area:])
@@ -79,26 +79,49 @@ def norm(a,b):
 def slope(a,b):
 	return b/float(a)
 
+def SLOPEcon(pair_slope,pair2_slope):
+	if pair_slope < 0 and pair2_slope <0:
+		slope_condition = bool(pair_slope > pair2_slope*1.7 and pair_slope < pair2_slope*0.3)
+	else:
+		slope_condition = bool(pair_slope < pair2_slope*1.7 and pair_slope > pair2_slope*0.3)
+	return slope_condition
+
+def NORMcon(pair_norm,pair2_norm):
+	return bool(pair_norm < pair2_norm*1.7 and pair_norm>pair2_norm*0.3)
+
 
 def find_match(xbifi,ybifi,xbits,ybits):
 	poss=[[],[]]
-	for i in range(1,len(xbifi)):
+	for i in range(2,len(xbifi)):
 		print 'searching'
 		if ybifi[i-1]!=ybifi[i]:
-			pair = [[xbifi[i-1],xbifi[i]],[ybifi[i-1],ybifi[i]]]
-			pair_norm = norm(pair[0][0]-pair[0][1],pair[1][0]-pair[1][1])
-			pair_slope = slope(pair[0][0]-pair[0][1],pair[1][0]-pair[1][1])
-			for j in range(1,len(xbits)):
+			''' here we are spawning the first tripplet, 
+			we connect all three dots'''
+			tripplet = [[xbifi[i-2],xbifi[i-1],xbifi[i]],[ybifi[i-2],ybifi[i-1],ybifi[i]]]
+			tr_norm1 = norm(tripplet[0][0]-tripplet[0][1],tripplet[1][0]-tripplet[1][1])
+			tr_norm2 = norm(tripplet[0][1]-tripplet[0][2],tripplet[1][1]-tripplet[1][2])
+			tr_norm3 = norm(tripplet[0][2]-tripplet[0][0],tripplet[1][2]-tripplet[1][0])
+			tr_slope1 = slope(tripplet[0][0]-tripplet[0][1],tripplet[1][0]-tripplet[1][1])
+			tr_slope2 = slope(tripplet[0][1]-tripplet[0][2],tripplet[1][1]-tripplet[1][2])
+			tr_slope3 = slope(tripplet[0][2]-tripplet[0][0],tripplet[1][2]-tripplet[1][0])
+			for j in range(2,len(xbits)):
 				if ybits[j-1]!=ybits[j]:
-					pair2=[[xbits[j-1],xbits[j]],[ybits[j-1],ybits[j]]]
-					pair2_norm = norm(pair2[0][0]-pair2[0][1],pair2[1][0]-pair2[1][1])
-					pair2_slope = slope(pair2[0][0]-pair2[0][1],pair2[1][0]-pair2[1][1])
-					print pair_norm,pair2_norm,'__',pair_slope,pair2_slope
-					if pair_slope < 0 and pair2_slope <0:
-						slope_condition = bool(pair_slope > pair2_slope*1.5 and pair_slope < pair2_slope*0.5)
-					else:
-						slope_condition = bool(pair_slope < pair2_slope*1.5 and pair_slope > pair2_slope*0.5)
-					if pair_norm < pair2_norm*1.5 and pair_norm>pair2_norm*0.5 and slope_condition:
+					''' other tripplet'''
+					tripplet2=[[xbits[j-2],xbits[j-1],xbits[j]],[ybits[j-2],ybits[j-1],ybits[j]]]
+					tr2_norm1 = norm(tripplet2[0][0]-tripplet2[0][1],tripplet2[1][0]-tripplet2[1][1])
+					tr2_norm2 = norm(tripplet2[0][1]-tripplet2[0][2],tripplet2[1][1]-tripplet2[1][2])
+					tr2_norm3 = norm(tripplet2[0][2]-tripplet2[0][0],tripplet2[1][2]-tripplet2[1][0])
+					tr2_slope1 = slope(tripplet2[0][0]-tripplet2[0][1],tripplet2[1][0]-tripplet2[1][1])
+					tr2_slope2 = slope(tripplet2[0][1]-tripplet2[0][2],tripplet2[1][1]-tripplet2[1][2])
+					tr2_slope3 = slope(tripplet2[0][2]-tripplet2[0][0],tripplet2[1][2]-tripplet2[1][0])
+					''' compare their slope and length'''
+					c1 = SLOPEcon(tr2_slope1,tr_slope1)
+					c2 = SLOPEcon(tr2_slope2,tr_slope2)
+					c3 = SLOPEcon(tr2_slope3,tr_slope3)
+					c4 = NORMcon(tr2_norm1,tr_norm1)
+					c5 = NORMcon(tr2_norm2,tr_norm2)
+					c6 = NORMcon(tr2_norm3,tr_norm3)
+					if c1 and c2 and c3 and c4 and c5 and c6:
 						print 'found match'
 						if i in poss[0] or j in poss[1]:
 							pass
@@ -115,14 +138,20 @@ for i,j in zip(poss[0],poss[1]):
 	plt.plot([xbifi[i-1],xbifi[i]],[ybifi[i-1],ybifi[i]],color='red')
 	plt.plot([xbits[j-1],xbits[j]],[ybits[j-1],ybits[j]],color='red')
 	print 'difference',xbifi[i]-xbits[j]
-	print 'difference',xbifi[i-1]-xbits[j-1]
-	sum += xbifi[i]-xbits[j]#+xbifi[i-1]-xbits[j-1]
-print 'difference', sum/float(len(poss[0]))
-sum = sum/float(len(poss[0]))
-#plt.plot(x,krak,color='red',label='kraken')
+	sum += xbifi[i-1]-xbits[j-1]
+if poss != [[],[],]:
+	print len(poss[0])
+	sum = sum/float(len(poss[0]))
+else:
+	print 'no pattern found'
+	sum = 0
+if sum < 0:
+	print 'bitfinex is leading by {:.2f} seconds'.format(sum)
+elif sum >0:
+	print 'bitstamp is leading by {:.2f} seconds'.format(sum)
 adjx = [ i + sum for i in x]
 plt.plot(x[-area:-100],bitst[-area:-100],color='blue',label='bistampt')
-#plt.plot(adjx[-area:-100],bitst[-area:-100],color='red',label='bistampt')
+plt.plot(adjx[-area:-100],bitst[-area:-100],color='red',label='bistampt adjusted')
 plt.plot(x[-area:-100],bitfi[-area:-100],color='black',label='bitfinex')
 
 
