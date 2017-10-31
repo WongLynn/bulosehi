@@ -10,22 +10,6 @@ k = Kraken()
 B = Bitstamp()
 Bf = Bitfinex()
 
-	
-print '\nlogging data... '
-print 'press ctrl + c to skip to analysing...'
-try:
-	while True:
-		kp = k.getCurrentPrice('BTC','USD')
-		Bp = B.getCurrentPrice('BTC','USD')
-		Bfp = Bf.getCurrentPrice('BTC','USD')
-		out = [time.time(),kp,Bp,Bfp]
-		with open("ticker.csv", 'a') as fp:
-			a = csv.writer(fp, delimiter=',')
-			a.writerow(out)
-		time.sleep(1) # reduce CPU usage, ticker rarely updates faster than 1s
-except KeyboardInterrupt:
-	pass
-print 'analysing'
 
 #read all data:
 data=[]
@@ -33,10 +17,8 @@ with open("ticker.csv") as csvfile:
     readCSV = csv.reader(csvfile, delimiter=',')
     for out in readCSV:
     	data.append(out)
-if len(data) < 1000:
-	print '\n too little data, need at least 1000 measurements'
-	print 'exiting...'
-	exit()
+
+data = data[:2000]
 bitst = []
 krak = []
 bitfi = []
@@ -59,20 +41,6 @@ def get_local_extrema(x,data):
 			m[1].append(data[i])
 	return m
 
-area = 5000 #how much recorded data we want to analyse (more than 2000 recommended)
-
-
-mbifi = get_local_extrema(x[-area:],bitfi[-area:])
-ybifi = [i for i in mbifi[1]]
-plt.scatter(mbifi[0],ybifi,color='black')
-mbits = get_local_extrema(x[-area:],bitst[-area:])
-ybits = [i for i in mbits[1]]
-plt.scatter(mbits[0],ybits,color='blue')
-print 'max-minbifi',max(ybifi)-min(ybifi)
-print 'max-minbits',max(ybits)-min(ybits)
-xbifi = mbifi[0]
-xbits = mbits[0]
-
 def norm(a,b):
 	return np.sqrt(float(a)**2+float(b)**2)
 
@@ -88,7 +56,6 @@ def SLOPEcon(pair_slope,pair2_slope):
 
 def NORMcon(pair_norm,pair2_norm):
 	return bool(pair_norm < pair2_norm*1.7 and pair_norm>pair2_norm*0.3)
-
 
 def find_match(xbifi,ybifi,xbits,ybits):
 	poss=[[],[]]
@@ -130,18 +97,35 @@ def find_match(xbifi,ybifi,xbits,ybits):
 							poss[1].append(j)
 						break
 	return poss
-poss = find_match(xbifi,ybifi,xbits,ybits)
-print 'done'
-print poss
+
+mbifi = get_local_extrema(x,bitfi)
+ybifi = [i for i in mbifi[1]]
+plt.scatter(mbifi[0],ybifi,color='black')
+mbits = get_local_extrema(x,bitst)
+ybits = [i for i in mbits[1]]
+plt.scatter(mbits[0],ybits,color='blue')
+print 'max-minbifi',max(ybifi)-min(ybifi)
+print 'max-minbits',max(ybits)-min(ybits)
+xbifi = mbifi[0]
+xbits = mbits[0]
+EXCHANGES = [bitst,bitfi]
+poss = find_match(xbifi,ybifi,xbits,ybits)	
 sum = 0
 for i,j in zip(poss[0],poss[1]):
 	plt.plot([xbifi[i-1],xbifi[i]],[ybifi[i-1],ybifi[i]],color='red')
-	plt.plot([xbits[j-1],xbits[j]],[ybits[j-1],ybits[j]],color='red')
+	plt.plot([xbits[j-1],xbits[j]],[ybits[j-1],ybits[j]],color='green')
+	plt.plot([xbifi[i-2],xbifi[i]],[ybifi[i-2],ybifi[i]],color='red')
+	plt.plot([xbits[j-2],xbits[j]],[ybits[j-2],ybits[j]],color='green')
+	plt.plot([xbifi[i-1],xbifi[i-2]],[ybifi[i-1],ybifi[i-2]],color='red')
+	plt.plot([xbits[j-1],xbits[j-2]],[ybits[j-1],ybits[j-2]],color='green')
 	print 'difference',xbifi[i]-xbits[j]
-	sum += xbifi[i-1]-xbits[j-1]
+	print 'difference',xbifi[i-1]-xbits[j-1]
+	print 'difference',xbifi[i-2]-xbits[j-2]
+	sum += xbifi[i-2]-xbits[j-2]+xbifi[i-1]-xbits[j-1]+xbifi[i]-xbits[j]
+	print sum
 if poss != [[],[],]:
 	print len(poss[0])
-	sum = sum/float(len(poss[0]))
+	sum = sum/float(len(poss[0])*3)
 else:
 	print 'no pattern found'
 	sum = 0
@@ -149,24 +133,15 @@ if sum < 0:
 	print 'bitfinex is leading by {:.2f} seconds'.format(sum)
 elif sum >0:
 	print 'bitstamp is leading by {:.2f} seconds'.format(sum)
-adjx = [ i + sum for i in x]
-plt.plot(x[-area:-100],bitst[-area:-100],color='blue',label='bistampt')
-plt.plot(adjx[-area:-100],bitst[-area:-100],color='red',label='bistampt adjusted')
-plt.plot(x[-area:-100],bitfi[-area:-100],color='black',label='bitfinex')
+for ex in EXCHANGES:
+	m = get_local_extrema(x,ex)
+	plt.scatter(m[0],m[1],color='yellow')
+
+#x = [i  for i in range(len(bitst))]
+plt.plot(x,bitst,color='blue',label='bistampt')
+#plt.plot(x,krak,color='red',label='kraken')
+plt.plot(x,bitfi,color='black',label='bitfinex')
 
 
 plt.legend()
 plt.show()
-	
-
-
-
-
-
-
-
-
-
-
-
-
