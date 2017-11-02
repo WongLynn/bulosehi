@@ -95,6 +95,12 @@ def find_match2(xbifi,ybifi,xbits,ybits):
 									c6 = NORMcon(tr2_norm3,tr_norm3)
 									p1 = [i,j,k]
 									p2 = [l,m,n]
+									if not ((tripplet[0][0]<= tripplet[0][1] and  tripplet2[0][0]<= tripplet2[0][1]) or (tripplet[0][0]>= tripplet[0][1] and  tripplet2[0][0]>= tripplet2[0][1])):
+										break
+									if not ((tripplet[0][1]<= tripplet[0][2] and  tripplet2[0][1]<= tripplet2[0][2]) or (tripplet[0][1]>= tripplet[0][2] and  tripplet2[0][1]>= tripplet2[0][2])):
+										break
+									if not ((tripplet[0][2]<= tripplet[0][0] and  tripplet2[0][2]<= tripplet2[0][0]) or (tripplet[0][2]>= tripplet[0][0] and  tripplet2[0][2]>= tripplet2[0][0])):
+										break
 									if c1 and c2 and c3 and c4 and c5 and c6:
 										
 										if p1 in poss[0] or p2 in poss[1]:
@@ -102,7 +108,6 @@ def find_match2(xbifi,ybifi,xbits,ybits):
 										else:
 											poss[0].append(p1)
 											poss[1].append(p2)
-										break
 	return poss
 
 
@@ -148,7 +153,7 @@ if sum < 0:
 	print 'bitfinex is leading by {:.2f} seconds'.format(sum)
 	if index!= None:
 		for i in range(index-10,index+10):
-			if int(bitst[i])=<int(bitfi[-1]) +10 and int(bitst[i])=>int(bitfi[-1])-10:
+			if int(bitst[i])<=int(bitfi[-1]) +10 and int(bitst[i])>=int(bitfi[-1])-10:
 				print 'confirmed'
 				break
 	else:
@@ -157,16 +162,13 @@ elif sum >0:
 	print 'bitstamp is leading by {:.2f} seconds'.format(sum)
 	if index:
 		for i in range(index-10,index+10):
-			if int(bitst[i])=<int(bitfi[-1]) +10 and int(bitst[i])=>int(bitfi[-1])-10:
+			if int(bitst[i])<=int(bitfi[-1]) +10 and int(bitst[i])>=int(bitfi[-1])-10:
 				print 'confirmed'
 				break
 	else:
 		print 'no index found'
 else:
 	print 'inconclusive'
-for ex in EXCHANGES:
-	m = get_local_extrema(x,ex)
-	plt.scatter(m[0],m[1],color='yellow')
 
 #x = [i  for i in range(len(bitst))]
 plt.plot(x,bitst,color='blue',label='bistampt')
