@@ -52,15 +52,15 @@ def slope(a,b):
 
 def SLOPEcon(pair_slope,pair2_slope):
 	if pair_slope < 0 and pair2_slope <0:
-		slope_condition = bool(pair_slope > pair2_slope*1.4 and pair_slope < pair2_slope*0.6)
+		slope_condition = bool(pair_slope > pair2_slope*1.3 and pair_slope < pair2_slope*0.7)
 	elif pair_slope >= 0 and pair2_slope >=0:
-		slope_condition = bool(pair_slope < pair2_slope*1.4 and pair_slope > pair2_slope*0.6)
+		slope_condition = bool(pair_slope < pair2_slope*1.3 and pair_slope > pair2_slope*0.7)
 	else:
 		return False
 	return slope_condition
 
 def NORMcon(pair_norm,pair2_norm):
-	return bool(pair_norm < pair2_norm*1.2 and pair_norm>pair2_norm*0.8)
+	return bool(pair_norm < pair2_norm*1.1 and pair_norm>pair2_norm*0.9)
 
 def find_match2(xbifi,ybifi,xbits,ybits):
 	poss=[[],[]]
@@ -122,7 +122,7 @@ xbifi = []
 ybits = []
 xbits = []
 for i in range(len(bitst)):
-	if not i % 30:
+	if not i % 20:
 		ybifi.append(bitfi[i])
 		xbifi.append(x[i])
 		ybits.append(bitst[i])
@@ -137,8 +137,7 @@ for i,j in zip(poss[0],poss[1]):
 	plt.plot([xbits[j[0]],xbits[j[1]],xbits[j[2]],xbits[j[0]]],[ybits[j[0]],ybits[j[1]],ybits[j[2]],ybits[j[0]]],color='green')
 	print 'difference',xbifi[i[0]]-xbits[j[0]]+xbifi[i[1]]-xbits[j[1]]+xbifi[i[2]]-xbits[j[2]]
 	sum += xbifi[i[0]]-xbits[j[0]]+xbifi[i[1]]-xbits[j[1]]+xbifi[i[2]]-xbits[j[2]]
-	print sum
-if poss != [[],[],]:
+if poss != [[],[]]:
 	print len(poss[0])
 	sum = sum/float(len(poss[0])*3)
 else:
@@ -151,22 +150,8 @@ for i in range(len(x)):
 		break
 if sum < 0:
 	print 'bitfinex is leading by {:.2f} seconds'.format(sum)
-	if index!= None:
-		for i in range(index-10,index+10):
-			if int(bitst[i])<=int(bitfi[-1]) +10 and int(bitst[i])>=int(bitfi[-1])-10:
-				print 'confirmed'
-				break
-	else:
-		print 'no index found'
 elif sum >0:
 	print 'bitstamp is leading by {:.2f} seconds'.format(sum)
-	if index:
-		for i in range(index-10,index+10):
-			if int(bitst[i])<=int(bitfi[-1]) +10 and int(bitst[i])>=int(bitfi[-1])-10:
-				print 'confirmed'
-				break
-	else:
-		print 'no index found'
 else:
 	print 'inconclusive'
 
